@@ -1,0 +1,19 @@
+body {
+    text-align: center;
+    font-family: sans-serif;
+    margin-top: 100px;
+}
+#playerSelect {
+
+    text-align: left;
+
+    display: inline-block;
+
+}
+#historyDisplay {
+
+    overflow-x: auto;
+
+    margin-top: 20px;
+
+}

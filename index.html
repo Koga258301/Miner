@@ -1,0 +1,117 @@
+<html>
+<head>
+    <title>Miner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Miner</h1>
+    <!-- 以下、プレイヤーの名前の処理 -->
+    <div id="playerNameArea">
+
+<h3>プレイヤー名設定</h3>
+
+プレイヤー1
+<input type="text" id="name0">
+
+<br><br>
+
+プレイヤー2
+<input type="text" id="name1">
+
+<br><br>
+
+プレイヤー3
+<input type="text" id="name2">
+
+<br><br>
+
+プレイヤー4
+<input type="text" id="name3">
+
+<br><br>
+
+プレイヤー5
+<input type="text" id="name4">
+
+<br><br>
+
+プレイヤー6
+<input type="text" id="name5">
+
+</div>
+<!-- ここまで プレイヤー名の処理 -->
+
+    <h2 id="roundDisplay">
+    Round 1
+</h2>
+<h3 id="scoreDisplay">
+    市民 0勝　盗賊 0勝
+</h3>
+
+<div id="selectionArea">
+
+    <h3>採掘メンバー選択</h3>
+
+    <div id="playerSelect"></div>
+
+</div>
+
+<button id="startButton" onclick="startGame()">
+    ゲーム開始
+</button>
+<br><br>
+
+<button id="ruleBookButton"
+        onclick="showRuleBook()">
+    ルールブックを読む
+</button>
+
+<button id="roleButton" onclick="showRole()">
+    役職確認
+</button>
+<div id="roleDisplay"></div>
+
+
+<button id="mineButton" onclick="mining()">
+    採掘開始
+</button>
+
+<button id="meetingButton" onclick="startMeeting()">
+    会議開始
+</button>
+<div id="meetingDisplay"></div>
+<div id="accompliceDisplay"></div>
+<button id="endMeetingButton"onclick="endMeeting()">
+    会議終了
+</button>
+
+
+<button id="nextRoundButton"
+        onclick="nextRound()">
+    次ラウンドへ
+</button>
+
+<button id="selectDoneButton"
+        onclick="finishSelection()">
+    選出完了
+</button>
+
+
+<div id="result"></div>
+
+    <script src="script.js"></script>
+
+
+<hr>
+
+<button id="resetGameButton"
+        onclick="resetGame()"
+        style="display:none;">
+    リセット
+</button>
+
+<div id="historyDisplay"></div>
+
+</body>
+</html>
