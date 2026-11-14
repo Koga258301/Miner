@@ -17,6 +17,23 @@ body {
     margin-top: 20px;
 
 }
+button {
+
+    font-size: 20px;
+
+    padding: 6px 10px;
+
+    margin: 5px;
+
+}
+input[type="checkbox"] {
+
+    width: 19px;
+
+    height: 19px;
+
+}
+
 @media screen and (max-width: 768px) {
 
     body {
@@ -26,5 +43,18 @@ body {
         margin-top: 20px;
 
     }
+
+    input[type="text"],
+input[type="number"] {
+
+    font-size: 20px;
+
+    padding: 8px;
+
+    border: 2px solid #555;
+
+    border-radius: 5px;
+
+}
 
 }
