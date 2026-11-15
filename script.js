@@ -83,8 +83,7 @@ const ROLE_DATA = {
 
 
 // プレイヤー一覧
-const players =
-    createPlayers();
+let players = createPlayers();
 
 function createPlayers() {
 
@@ -410,17 +409,16 @@ function startGame() {
     gameOver = false;
     roleCheckComplete = false;
 
-    document.getElementById("ruleBookButton").style.display =
-    "none";
+    document.getElementById(
+    "homeArea"
+    ).style.display = "none";
+    
     document.getElementById("roundDisplay").style.display =
     "block";
     document.getElementById("scoreDisplay").style.display =
     "block";
 
-    document.getElementById("startButton").style.display =
-    "none";
-    document.getElementById("playerNameArea").style.display =
-    "none";
+    
     document.getElementById("roleButton").style.display = "inline-block";
 
 }
@@ -552,14 +550,9 @@ if(checkbox) {
     document.getElementById("nextRoundButton").style.display =
         "none";
 
-    document.getElementById("startButton").style.display =
-        "inline-block";
-
-    document.getElementById("ruleBookButton").style.display =
-        "inline-block";
-
-    document.getElementById("playerNameArea").style.display =
-        "block";
+    document.getElementById(
+    "homeArea"
+    ).style.display = "block";
 
     document.getElementById("result").innerHTML = "";
 
@@ -1746,7 +1739,7 @@ function showSettings() {
         "value='7'>" +
         "7人<br><br>" +
 
-        "<h3>追加役職</h3>" +
+        "<h3>追加役職（Coming soon...）</h3>" +
 
         "<input type='checkbox' " +
         "id='rookieOption'>" +
@@ -1774,6 +1767,8 @@ function saveSettings() {
 
     PLAYER_COUNT =
         Number(selectedPlayerCount);
+
+    players = createPlayers();
 
     showPlayerNameInputs();
 
