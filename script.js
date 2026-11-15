@@ -1,68 +1,139 @@
+// 盗賊陣営や第三陣営を追加したら、getFunction()を修正。市民陣営=0,盗賊陣営=2,第三陣営=1
+
 const MIN_MINING = 50; // 採掘量の下限
 const MAX_MINING = 130; // 採掘量の上限
 const MAX_STOCK = 10;  // 備蓄の上限
 const LEADER_MAX_MINE = 1; // リーダーの採掘可能回数
 const MAX_NAME_LENGTH = 4; // 名前の長さ
+const CITIZEN_WIN_COUNT = 5;// 市民勝利条件数
+const THIEF_WIN_COUNT = 5;//盗賊勝利条件数
+const MAX_ROUND = CITIZEN_WIN_COUNT + THIEF_WIN_COUNT - 1;
 
 // 以下、採掘確率
-const MINING_ROLLS = 40;
-
-const LOW_RATE = 0.59;
-const MID_RATE = 0.02;
+const MINING_ROLLS = 40; // 試行回数
+const LOW_RATE = 0.59; // LOW_REWARDの確率
+const MID_RATE = 0.02; // MID_REWARDの確率
 
 const LOW_REWARD = 1;
 const MID_REWARD = 4;
 const HIGH_REWARD = 5;
 // 以上、採掘確率
 
+// 以下、詳細設定用
+let PLAYER_COUNT = 6;//参加人数
+
+let useRookie = false;//「新人」
+
+let useRumorLover = false;//「噂好き」
+// 以上、詳細設定用
+
+// 役職のデータ
+const ROLE_DATA = {
+
+    "リーダー": {
+        faction: 0,
+        displayRole: "リーダー",
+        revealRole: "リーダー",
+        miningBonus: 10
+    },
+
+    "採掘者S": {
+        faction: 0,
+        displayRole: "採掘者",
+        revealRole: "採掘者",
+        miningBonus: 4
+    },
+
+    "採掘者A": {
+        faction: 0,
+        displayRole: "採掘者",
+        revealRole: "採掘者",
+        miningBonus: 2
+    },
+
+    "採掘者B": {
+        faction: 0,
+        displayRole: "採掘者",
+        revealRole: "採掘者",
+        miningBonus: 0
+    },
+
+    "採掘者C": {
+        faction: 0,
+        displayRole: "採掘者",
+        revealRole: "採掘者",
+        miningBonus: -2
+    },
+
+    "盗賊": {
+        faction: 2,
+        displayRole: "盗賊",
+        revealRole: "盗賊",
+        miningBonus: 15
+    },
+
+    "共犯者": {
+        faction: 2,
+        displayRole: "共犯者",
+        revealRole: "共犯者",
+        miningBonus: 12
+    }
+
+};
+
 
 // プレイヤー一覧
-const players = [
-    {
-        name: "プレイヤー1",
-        role: "リーダー",
-        stock: 0,
-        mineCount: 0
-    },
-    {
-        name: "プレイヤー2",
-        role: "採掘者A",
-        stock: 0,
-        mineCount: 0
-    },
-    {
-        name: "プレイヤー3",
-        role: "採掘者B",
-        stock: 0,
-        mineCount: 0
-    },
-    {
-        name: "プレイヤー4",
-        role: "採掘者C",
-        stock: 0,
-        mineCount: 0
-    },
-    {
-        name: "プレイヤー5",
-        role: "盗賊",
-        stock: 0,
-        mineCount: 0
-    },
-    {
-        name: "プレイヤー6",
-        role: "共犯者",
-        stock: 0,
-        mineCount: 0
+const players =
+    createPlayers();
+
+function createPlayers() {
+
+    let players = [];
+
+    for(
+        let i = 1;
+        i <= PLAYER_COUNT;
+        i++
+    ) {
+
+        players.push({
+
+            name:
+                "プレイヤー" + i,
+
+            role: "",
+
+            stock: 0,
+
+            mineCount: 0
+
+        });
+
     }
-];
-// 役職一覧
-const roles = [
+
+    return players;
+
+}
+
+const REQUIRED_ROLES = [
+
     "リーダー",
-    "採掘者A",
-    "採掘者B",
-    "採掘者C",
+
     "盗賊",
+
     "共犯者"
+
+];
+const OPTIONAL_ROLES = [
+
+    "採掘者C",
+
+    "採掘者B",
+
+    "採掘者A",
+
+    "採掘者S"
+
 ];
 
 let round = 1;
@@ -95,6 +166,71 @@ let meetingTimer = null;
 
 let revealPlayerIndex = 0;
 
+function showPlayerNameInputs() {
+
+    let html =
+        "<h3>プレイヤー名設定</h3>";
+
+    for(let i = 0; i < PLAYER_COUNT; i++) {
+
+        html +=
+
+            "プレイヤー" +
+
+            (i + 1) +
+
+            "<input type='text' id='name" +
+
+            i +
+
+            "'>" +
+
+            "<br><br>";
+
+    }
+
+    document.getElementById(
+        "playerNameArea"
+    ).innerHTML = html;
+
+}
+
+// 使用役職の確認
+function getRoles() {
+
+    let roles = [];
+
+    for(let i = 0; i < REQUIRED_ROLES.length; i++) {
+
+        roles.push(
+            REQUIRED_ROLES[i]
+        );
+
+    }
+
+    let minerCount =
+        PLAYER_COUNT -
+        REQUIRED_ROLES.length;
+
+    for(let i = 0; i < minerCount; i++) {
+
+        roles.push(
+            OPTIONAL_ROLES[i]
+        );
+
+    }
+
+    return roles;
+
+}
+
+// 市民陣営なら0、盗賊陣営なら2、第三陣営なら1を返す
+function getFaction(role) {
+
+    return ROLE_DATA[role].faction;
+
+}
+
 // 採掘の基本確率
 function rollBase() {
 
@@ -125,48 +261,33 @@ function rollBase() {
     return total;
 
 }
-// 役職ごとの採掘確率
+// 採掘量の調整
 function getMiningAmount(role) {
 
     let amount = rollBase();
 
-    if(role === "採掘者A") {
-        amount += 2;
+    amount +=
+        ROLE_DATA[role]
+        .miningBonus;
+
+    if(amount < MIN_MINING) {
+
+        amount = MIN_MINING;
+
     }
-    else if(role === "採掘者C") {
-        amount -= 2;
+
+    if(amount > MAX_MINING) {
+
+        amount = MAX_MINING;
+
     }
-    else if(role === "リーダー") {
-        amount += 5;
-    }
-    else if(role === "盗賊") {
-        amount += 15;
-    }
-    else if(role === "共犯者") {
-        amount += 15;
-    }
-if(amount < MIN_MINING) {
-    amount = MIN_MINING;
-}
-if(amount > MAX_MINING) {
-    amount = MAX_MINING;
-}
+
     return amount;
 
 }
 function getDisplayRole(role) {
 
-    if(
-        role === "採掘者A" ||
-        role === "採掘者B" ||
-        role === "採掘者C"
-    ) {
-
-        return "採掘者";
-
-    }
-
-    return role;
+    return ROLE_DATA[role].displayRole;
 
 }
 // 採掘開始
@@ -236,220 +357,7 @@ miningAmounts = [];
 showMiningPlayer();
 
 return;
-    
-    document.getElementById("meetingDisplay").innerHTML = "";
-    document.getElementById("meetingDisplay").innerHTML =
-        "";
-
-    document.getElementById("accompliceDisplay").innerHTML =
-        "";
-
-    document.getElementById("selectionArea").style.display =
-    "none";
-
-    console.log(selectedPlayers);
-
-    let selectedText = "";
-
-    let sum = 0;
-
-    let miningText = "";
-
-    for(let i = 0; i < selectedPlayers.length; i++) {
-
-    selectedPlayers[i].mineCount++;
-
-    let amount =
-        getMiningAmount(
-            selectedPlayers[i].role
-        );
-
-    sum += amount;
-
-    miningText +=
-        selectedPlayers[i].name +
-        " : " +
-        amount +
-        "個<br>";
-
-}
-
-    for(let i = 0; i < selectedPlayers.length; i++) {
-
-    selectedText +=
-        selectedPlayers[i].name +
-        " : " +
-        selectedPlayers[i].role +
-        "<br>";
-
-}
-
-    let result;
-
-    if(sum >= 300){
-        result = "成功！";
-        citizenWins++;
-    } else {
-        result = "失敗...";
-        thiefWins++;
-    }
-    document.getElementById("scoreDisplay").innerHTML =
-    "市民 " +
-    citizenWins +
-    "勝　盗賊 " +
-    thiefWins +
-    "勝";
-
-    if(citizenWins >= 5) {
-
-    let everyoneMined = true;
-
-    let missingPlayers = "";
-
-    for(let i = 0; i < players.length; i++) {
-
-        if(players[i].mineCount === 0) {
-
-            everyoneMined = false;
-
-            missingPlayers +=
-                players[i].name +
-                "<br>";
-
-        }
-
-    }
-
-    gameOver = true;
-
-    if(everyoneMined) {
-
-        document.getElementById("result").innerHTML =
-            "<h1>市民陣営の勝利！</h1>" +
-            "<h2>最終スコア</h2>" +
-            "<p>市民 5勝　盗賊 " +
-            thiefWins +
-            "勝</p>";
-
-    }
-    else {
-
-        document.getElementById("result").innerHTML =
-            "<h1>盗賊陣営の勝利！</h1>" +
-            "<p>未採掘プレイヤー</p>" +
-            missingPlayers +
-            "<br>" +
-            "<h2>最終スコア</h2>" +
-            "<p>市民 5勝　盗賊 " +
-            thiefWins +
-            "勝</p>";
-
-    }
-
-    return;
-
-}
-
-
-if(thiefWins >= 5) {
-
-    gameOver = true;
-
-    document.getElementById("result").innerHTML =
-    "<h1>盗賊陣営の勝利！</h1>" +
-    "<h2>最終スコア</h2>" +
-    "<p>市民 " +
-    citizenWins +
-    "勝　盗賊 5勝</p>";
-
-    return;
-
-}
-if(round >= 9) {
-
-    gameOver = true;
-
-    if(citizenWins > thiefWins) {
-
-        alert(
-            "9ラウンド終了\n市民陣営の勝利！"
-        );
-
-    }
-    else if(thiefWins > citizenWins) {
-
-        alert(
-            "9ラウンド終了\n盗賊陣営の勝利！"
-        );
-
-    }
-    else {
-
-        alert(
-            "9ラウンド終了\n引き分け"
-        );
-
-    }
-
-    return;
-
-}
-
-    let playerList = "";
-
-for(let i = 0; i < players.length; i++) {
-    playerList +=
-    players[i].name +
-    " : " +
-    players[i].role +
-    " (採掘回数 " +
-    players[i].mineCount +
-    ")" +
-    "<br>";
-}
-document.getElementById("result").innerHTML =
-    miningText +
-    "<br>" +
-    "合計: " + sum + "個<br><br>" +
-    result +
-    "<br><br>" +
-    "プレイヤー一覧<br>" +
-    playerList +
-    "<br><br>" +
-    "選出メンバー<br>" +
-    selectedText;
-
-round++;
-
-document.getElementById("roundDisplay").innerHTML =
-    "Round " + round;
-
-    document.getElementById("scoreDisplay").innerHTML =
-    "市民 " +
-    citizenWins +
-    "勝　盗賊 " +
-    thiefWins +
-    "勝";
-
-    for(let i = 0; i < players.length; i++) {
-    document.getElementById("p" + i).checked = false;
-}
-    document.getElementById("mineButton").style.display =
-    "none";
-
-    document.getElementById("nextRoundButton").style.display =
-    "inline-block";
-
-    for(let i = 0; i < players.length; i++) {
-    document.getElementById("p" + i).checked = false;
-}
-
-document.getElementById("mineButton").style.display =
-    "none";
-
-document.getElementById("nextRoundButton").style.display =
-    "inline-block";
-
+   
 }
 
 
@@ -486,7 +394,7 @@ function startGame() {
 
         return;
 
-    }
+}
 
     players[i].name = inputName;
 
@@ -548,12 +456,23 @@ function showPlayers() {
     "none";
 
 }
+
+// 役職をそれぞれに割り振っている
 function setupGame() {
+
+    let roles = getRoles();
 
     shuffle(roles);
 
     for(let i = 0; i < players.length; i++) {
+
         players[i].role = roles[i];
+
+        players[i].faction =
+            getFaction(
+                players[i].role
+            );
+
     }
 
 }
@@ -1168,6 +1087,34 @@ function nextMiningPlayer() {
     showMiningPlayer();
 
 }
+function getRevealRole(role) {
+
+    return ROLE_DATA[role].revealRole;
+
+}
+function getRoleList() {
+
+    let html = "";
+
+    for(let i = 0; i < players.length; i++) {
+
+        html +=
+
+            players[i].name +
+
+            " ： " +
+
+            getRevealRole(
+                players[i].role
+            ) +
+
+            "<br>";
+
+    }
+
+    return html;
+
+}
 function showMiningResult() {
 
     let sum = 0;
@@ -1214,7 +1161,7 @@ showHistory();
 
     }
 
-    if(citizenWins >= 5) {
+    if(citizenWins >= CITIZEN_WIN_COUNT) {
 
         let everyoneMined = true;
 
@@ -1243,6 +1190,8 @@ showHistory();
         "市民 5勝　盗賊 " +
         thiefWins +
         "勝"
+
+        
     );
 
 }
@@ -1260,7 +1209,7 @@ showHistory();
 
     }
 
-    if(thiefWins >= 5) {
+    if(thiefWins >= THIEF_WIN_COUNT) {
 
         gameOver = true;
 
@@ -1314,15 +1263,15 @@ function showEnding(title, scoreText) {
         scoreText +
         "</p><br>" +
 
+        "<h2>役職一覧</h2>" +
+
+        getRoleList() +
+
+        "<br>" +
+
         "<button onclick='resetGame()'>" +
         "リセットする" +
         "</button>";
-
-}
-
-function showRuleBook() {
-
-    alert("Coming soon...");
 
 }
 function showHistory() {
@@ -1335,7 +1284,7 @@ function showHistory() {
 
     html += "<tr>";
 
-for(let i = 1; i <= 9; i++) {
+for(let i = 1; i <= MAX_ROUND; i++) {
 
     html +=
 
@@ -1351,7 +1300,7 @@ html += "</tr>";
 
     html += "<tr>";
 
-for(let i = 0; i < 9; i++) {
+for(let i = 0; i < MAX_ROUND; i++) {
 
     if(i < miningHistory.length) {
 
@@ -1391,7 +1340,7 @@ for(let i = 0; i < 9; i++) {
 html += "</tr>";
 html += "<tr>";
 
-for(let i = 0; i < 9; i++) {
+for(let i = 0; i < MAX_ROUND; i++) {
 
     if(i < miningHistory.length) {
 
@@ -1422,3 +1371,423 @@ html += "</tr>";
         html;
 
 }
+
+// ルールブック
+function showRuleBook() {
+
+    document.getElementById(
+        "homeArea"
+    ).style.display = "none";
+
+    document.getElementById(
+        "ruleBookDisplay"
+    ).innerHTML =
+
+        "<h2>ルールブック</h2>" +
+
+        "<button onclick='showGameOverview()'>" +
+        "ゲーム概要" +
+        "</button><br><br>" +
+
+        "<button onclick='showRoles()'>" +
+        "役職説明" +
+        "</button><br><br>" +
+
+        "<button onclick='showFlow()'>" +
+        "ゲームの流れ" +
+        "</button><br><br>" +
+
+        "<button onclick='showVictory()'>" +
+        "勝利条件" +
+        "</button><br><br>" +
+
+        "<button onclick='showTips()'>" +
+        "Tips" +
+        "</button><br><br>" +
+
+        "<button onclick='closeRuleBook()'>" +
+        "閉じる" +
+        "</button";
+
+}
+function showGameOverview() {
+
+    document.getElementById(
+        "ruleBookDisplay"
+    ).innerHTML =
+
+        "<h2>ゲーム概要</h2>" +
+
+        "<div class='ruleCard'>" +
+
+        "<p>" +
+        "あなたたちは採掘会社の社員です。" +
+        "</p>" +
+
+        "<p>" +
+        "会社は一大プロジェクトを立ち上げ、多くの宝石を採掘することを目標としています。" +
+        "</p>" +
+
+        "<p>" +
+        "しかし、そのメンバーの中には会社への不満からプロジェクトの失敗を目論む者が紛れ込んでいます。" +
+        "</p>" +
+
+        "<p>" +
+        "リーダーはプロジェクトを成功させることができるでしょうか。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<button onclick='showRuleBook()'>" +
+        "戻る" +
+        "</button>";
+
+}
+function showRoles() {
+
+    document.getElementById(
+        "ruleBookDisplay"
+    ).innerHTML =
+
+        "<h2>役職説明</h2>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>リーダー</h3>" +
+
+        "<p>" +
+        "採掘メンバーを選出します。リーダーは採掘に参加できる回数が制限されています。" +
+        "</p>" +
+
+        "<p>" +
+        "若手ながら幸運にも一大プロジェクトを任された管理者です。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>採掘者</h3>" +
+
+        "<p>" +
+        "市民陣営です。採掘と納品を行い、プロジェクトの成功を目指します。" +
+        "</p>" +
+
+        "<p>" +
+        "リーダーの部下として、一大プロジェクトに参加し、結果を出して出世コースに乗りたいと考えています。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>盗賊</h3>" +
+
+        "<p>" +
+        "盗賊陣営です。採掘した宝石の一部を納品せず、自分のものにすることができます。" +
+        "</p>" +
+
+        "<p>" +
+        "頭の切れる優秀な採掘者ですが、才能に見合った報酬を受けられず、プロジェクトの失敗を企てています。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>共犯者</h3>" +
+
+        "<p>" +
+        "盗賊陣営です。会議後に採掘メンバーを1人変更できます。" +
+        "</p>" +
+
+        "<p>" +
+        "盗賊に心酔し、自ら犠牲になってでもプロジェクトを破壊しようと考えています。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<button onclick='showRuleBook()'>" +
+        "戻る" +
+        "</button>";
+
+}
+
+function showFlow() {
+
+    document.getElementById(
+        "ruleBookDisplay"
+    ).innerHTML =
+
+        "<h2>ゲームの流れ</h2>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>① 役職確認</h3>" +
+
+        "<p>" +
+        "順番にスマートフォンを回し、自分の役職を確認します。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>② 会議</h3>" +
+
+        "<p>" +
+        "全員で話し合い、誰を採掘メンバーに選出するか相談します。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>③ 採掘メンバー選出</h3>" +
+
+        "<p>" +
+        "リーダーは採掘メンバーを3人選出します。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>④ 共犯者能力</h3>" +
+
+        "<p>" +
+        "共犯者は必要であれば能力を使用し、採掘メンバーを変更します。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>⑤ 採掘</h3>" +
+
+        "<p>" +
+        "選出されたメンバーは採掘を行います。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>⑥ 納品</h3>" +
+
+        "<p>" +
+        "採掘した宝石のうち、何個を納品するか決定します。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>⑦ 結果発表</h3>" +
+
+        "<p>" +
+        "納品個数の合計を発表します。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>⑧ 次ラウンド</h3>" +
+
+        "<p>" +
+        "勝敗が決まっていなければ次のラウンドへ進みます。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<button onclick='showRuleBook()'>" +
+
+        "戻る" +
+
+        "</button>";
+
+}
+function showVictory() {
+
+    document.getElementById(
+        "ruleBookDisplay"
+    ).innerHTML =
+
+        "<h2>勝利条件</h2>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>市民陣営</h3>" +
+
+        "<p>" +
+        "300個以上の納品を達成することでプロジェクトは成功となります。" +
+        "</p>" +
+
+        "<p>" +
+        "プロジェクトを5回成功させることができれば、市民陣営の勝利です。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>盗賊陣営</h3>" +
+
+        "<p>" +
+        "市民陣営のプロジェクト成功を阻止することが目的です。" +
+        "</p>" +
+
+        "<p>" +
+        "また、市民陣営が5回プロジェクトを成功させた場合でも、一度も採掘に参加していないプレイヤーがいる場合は盗賊陣営の勝利となります。" +
+        "</p>" +
+
+        "</div>" +
+
+        "<button onclick='showRuleBook()'>" +
+
+        "戻る" +
+
+        "</button>";
+
+}
+function showTips() {
+
+    document.getElementById(
+        "ruleBookDisplay"
+    ).innerHTML =
+
+        "<h2>Miner Tips</h2>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>採掘量について</h3>" +
+
+        "<ul>" +
+
+        "<li>採掘者の採掘量の期待値は約104.7個です。</li>" +
+
+        "<li>リーダー、盗賊、共犯者の期待値は採掘者より高くなっています。</li>" +
+
+        "<li>採掘者ごとに採掘量の期待値は異なりますが、期待値が100個を下回ることはありません。</li>" +
+
+        "</ul>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>納品成功率について</h3>" +
+
+        "<ul>" +
+
+        "<li>採掘メンバー3人がすべて市民陣営の場合、300個以上納品できる確率は約75.4％～89.5％です。</li>" +
+
+        "<li>採掘メンバーのうち2人が市民陣営で、盗賊陣営のプレイヤーが50個のみ納品した場合、300個以上納品できる確率は約0.8％～12.5％になります。</li>" +
+
+        "</ul>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>ワンポイント</h3>" +
+
+        "<ul>" +
+
+        "<li>盗賊陣営が採掘メンバーに含まれている場合、納品量は大きく低下する可能性があります。</li>" +
+
+        "<li>市民陣営は採掘メンバーの選出や備蓄の管理が重要になります。</li>" +
+
+        "</ul>" +
+
+        "</div>" +
+
+        "<button onclick='showRuleBook()'>" +
+        "戻る" +
+        "</button>";
+
+}
+function closeRuleBook() {
+
+    document.getElementById(
+    "homeArea"
+    ).style.display = "block";
+
+    document.getElementById(
+        "ruleBookDisplay"
+    ).innerHTML = "";
+
+}
+ 
+
+// 以下、設定画面
+function showSettings() {
+
+    document.getElementById(
+    "homeArea"
+    ).style.display = "none";
+
+    document.getElementById(
+        "settingsDisplay"
+    ).innerHTML =
+
+        "<h2>設定</h2>" +
+
+        "<h3>プレイ人数</h3>" +
+
+        "<input type='radio' " +
+        "name='playerCount' " +
+        "value='6' checked>" +
+        "6人<br>" +
+
+        "<input type='radio' " +
+        "name='playerCount' " +
+        "value='7'>" +
+        "7人<br><br>" +
+
+        "<h3>追加役職</h3>" +
+
+        "<input type='checkbox' " +
+        "id='rookieOption'>" +
+        "新人<br>" +
+
+        "<input type='checkbox' " +
+        "id='rumorOption'>" +
+        "噂好き<br><br>" +
+
+        "<button onclick='saveSettings()'>" +
+        "保存" +
+        "</button>" +
+        "<button onclick='closeSettings()'>" +
+        "閉じる" +
+        "</button>";
+
+}
+function saveSettings() {
+
+    let selectedPlayerCount =
+
+        document.querySelector(
+            'input[name="playerCount"]:checked'
+        ).value;
+
+    PLAYER_COUNT =
+        Number(selectedPlayerCount);
+
+    showPlayerNameInputs();
+
+    closeSettings();
+
+}
+function closeSettings() {
+
+    document.getElementById(
+        "settingsDisplay"
+    ).innerHTML = "";
+
+    document.getElementById(
+    "homeArea"
+).style.display = "block";
+}
+showPlayerNameInputs();

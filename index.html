@@ -11,44 +11,35 @@
 
 </head>
 <body>
+    
+<h1 id="title">Miner</h1>
+<!-- 以下、ホーム画面 -->
+<div id="homeArea">
 
-    <h1>Miner</h1>
-    <!-- 以下、プレイヤーの名前の処理 -->
-    <div id="playerNameArea">
-
-<h3>プレイヤー名設定</h3>
-
-プレイヤー1
-<input type="text" id="name0">
-
-<br><br>
-
-プレイヤー2
-<input type="text" id="name1">
-
-<br><br>
-
-プレイヤー3
-<input type="text" id="name2">
-
-<br><br>
-
-プレイヤー4
-<input type="text" id="name3">
-
-<br><br>
-
-プレイヤー5
-<input type="text" id="name4">
-
-<br><br>
-
-プレイヤー6
-<input type="text" id="name5">
-
+<!-- プレイヤー名の処理 -->
+<div id="playerNameArea">
 </div>
-<!-- ここまで プレイヤー名の処理 -->
 
+<button id="startButton" onclick="startGame()">
+    ゲーム開始
+</button>
+<button
+    id="settingsButton"
+    onclick="showSettings()">
+
+    設定
+
+</button>
+<br><br>
+
+<button id="ruleBookButton"
+        onclick="showRuleBook()">
+    ルールブックを読む
+</button>
+</div>
+<!-- 以上、ホーム画面 -->
+
+<!-- 以下、ゲーム画面 -->
     <h2 id="roundDisplay">
     Round 1
 </h2>
@@ -64,15 +55,6 @@
 
 </div>
 
-<button id="startButton" onclick="startGame()">
-    ゲーム開始
-</button>
-<br><br>
-
-<button id="ruleBookButton"
-        onclick="showRuleBook()">
-    ルールブックを読む
-</button>
 
 <button id="roleButton" onclick="showRole()">
     役職確認
@@ -103,11 +85,15 @@
         onclick="finishSelection()">
     選出完了
 </button>
-
+<!-- 以上、ゲーム画面 -->
 
 <div id="result"></div>
 
-    <script src="script.js"></script>
+<div id="settingsDisplay"></div>
+
+<div id="ruleBookDisplay"></div>
+
+<script src="script.js"></script>
 
 
 <hr>
