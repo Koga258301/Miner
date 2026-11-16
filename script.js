@@ -21,11 +21,20 @@ const HIGH_REWARD = 5;
 
 // 以下、詳細設定用
 let PLAYER_COUNT = 6;//参加人数
-
 let useRookie = false;//「新人」
-
 let useRumorLover = false;//「噂好き」
+let accidentEnabled = false;// 落盤事故
 // 以上、詳細設定用
+
+// 以下、採掘事故用
+const ACCIDENT_RATE = 0.04;// 事故発生確率
+const ACCIDENT_A_RATE = 0.20;// 事故A発生
+const ACCIDENT_A_PENALTY = 10;// 事故Aの個人採掘量のマイナス量
+const ACCIDENT_B_PENALTY = 2;// 事故Bの個人採掘量のマイナス量
+
+let accidentType = "";
+
+// 以上、採掘事故用
 
 // 役職のデータ
 const ROLE_DATA = {
@@ -34,49 +43,72 @@ const ROLE_DATA = {
         faction: 0,
         displayRole: "リーダー",
         revealRole: "リーダー",
-        miningBonus: 10
+        miningBonus: 10,
+        isPublic: false
     },
 
     "採掘者S": {
         faction: 0,
         displayRole: "採掘者",
         revealRole: "採掘者",
-        miningBonus: 4
+        miningBonus: 4,
+        isPublic: false
     },
 
     "採掘者A": {
         faction: 0,
         displayRole: "採掘者",
         revealRole: "採掘者",
-        miningBonus: 2
+        miningBonus: 2,
+        isPublic: false
     },
 
     "採掘者B": {
         faction: 0,
         displayRole: "採掘者",
         revealRole: "採掘者",
-        miningBonus: 0
+        miningBonus: 0,
+        isPublic: false
     },
 
     "採掘者C": {
         faction: 0,
         displayRole: "採掘者",
         revealRole: "採掘者",
-        miningBonus: -2
+        miningBonus: -2,
+        isPublic: false
+    },
+
+    "新人": {
+        faction: 0,
+        displayRole: "新人",
+        revealRole: "新人",
+        miningBonus: -10,
+        isPublic: true
+    },
+
+    "噂好き": {
+        faction: 0,
+        displayRole: "採掘者",
+        revealRole: "噂好き",
+        miningBonus: 0,
+        isPublic: false
     },
 
     "盗賊": {
         faction: 2,
         displayRole: "盗賊",
         revealRole: "盗賊",
-        miningBonus: 15
+        miningBonus: 15,
+        isPublic: false
     },
 
     "共犯者": {
         faction: 2,
         displayRole: "共犯者",
         revealRole: "共犯者",
-        miningBonus: 12
+        miningBonus: 12,
+        isPublic: false
     }
 
 };
@@ -163,6 +195,10 @@ let miningHistory = [];
 let meetingTime = 300;
 let meetingTimer = null;
 
+// 新人、噂好きの有無
+let rookieEnabled = false;
+let rumorEnabled = false;
+
 let revealPlayerIndex = 0;
 
 function showPlayerNameInputs() {
@@ -199,7 +235,11 @@ function getRoles() {
 
     let roles = [];
 
-    for(let i = 0; i < REQUIRED_ROLES.length; i++) {
+    for(
+        let i = 0;
+        i < REQUIRED_ROLES.length;
+        i++
+    ) {
 
         roles.push(
             REQUIRED_ROLES[i]
@@ -207,11 +247,30 @@ function getRoles() {
 
     }
 
+    if(rookieEnabled) {
+
+        roles.push(
+            "新人"
+        );
+
+    }
+
+    if(rumorEnabled) {
+
+        roles.push(
+            "噂好き"
+    );
+    }
+
     let minerCount =
         PLAYER_COUNT -
-        REQUIRED_ROLES.length;
+        roles.length;
 
-    for(let i = 0; i < minerCount; i++) {
+    for(
+        let i = 0;
+        i < minerCount;
+        i++
+    ) {
 
         roles.push(
             OPTIONAL_ROLES[i]
@@ -268,6 +327,22 @@ function getMiningAmount(role) {
     amount +=
         ROLE_DATA[role]
         .miningBonus;
+    if(
+    accidentType === "A"
+    ) {
+
+    amount -=
+        ACCIDENT_A_PENALTY;
+
+    }
+    if(
+    accidentType === "B"
+    ) {
+
+    amount -=
+        ACCIDENT_B_PENALTY;
+
+    }
 
     if(amount < MIN_MINING) {
 
@@ -287,6 +362,41 @@ function getMiningAmount(role) {
 function getDisplayRole(role) {
 
     return ROLE_DATA[role].displayRole;
+
+}
+// 事故について
+function determineAccident() {
+
+    if(!accidentEnabled) {
+
+    accidentType = "";
+
+    return;
+
+}
+
+    accidentType = "";
+
+    if(
+        Math.random() <
+        ACCIDENT_RATE
+    ) {
+
+        if(
+            Math.random() <
+            ACCIDENT_A_RATE
+        ) {
+
+            accidentType = "A";
+
+        }
+        else {
+
+            accidentType = "B";
+
+        }
+
+    }
 
 }
 // 採掘開始
@@ -347,8 +457,10 @@ function mining() {
     document.getElementById("mineButton").style.display =
     "none";
 
-    miningPlayers = selectedPlayers;
+miningPlayers = selectedPlayers;
 
+determineAccident();
+console.log(accidentType);
 miningIndex = 0;
 
 miningAmounts = [];
@@ -582,26 +694,92 @@ function showRole() {
 
     roleCheckComplete = true;
 
-    document.getElementById("roleButton").style.display =
-        "none";
+    document.getElementById(
+        "roleButton"
+    ).style.display = "none";
 
-    document.getElementById("meetingButton").style.display =
+    if(rookieEnabled) {
+
+        document.getElementById(
+            "roleDisplay"
+        ).innerHTML =
+
+            "全員確認済みです<br><br>" +
+
+            "端末をリーダーに渡してください<br><br>" +
+
+            "<button onclick='showRookieReveal()'>" +
+
+            "次へ" +
+
+            "</button>";
+
+        return;
+
+    }
+
+    document.getElementById(
+        "meetingButton"
+    ).style.display =
         "inline-block";
 
+    document.getElementById(
+        "roleDisplay"
+    ).innerHTML =
 
+        "全員確認済みです<br><br>" +
 
-    document.getElementById("roleDisplay").innerHTML =
-        "全員確認済みです<br><br>会議を開始してください";
+        "会議を開始してください";
 
     return;
+    }
 
-}
 
     document.getElementById("roleDisplay").innerHTML =
         players[revealPlayerIndex].name +
         "<br><br>" +
-        "スマホを受け取ってください<br><br>" +
+        "端末を受け取ってください<br><br>" +
         "<button onclick='revealRole()'>役職を見る</button>";
+
+}
+function showRookieReveal() {
+
+    let rookieName = "";
+
+    for(
+        let i = 0;
+        i < players.length;
+        i++
+    ) {
+
+        if(
+            players[i].role ===
+            "新人"
+        ) {
+
+            rookieName =
+                players[i].name;
+
+        }
+
+    }
+
+    document.getElementById(
+        "meetingButton"
+    ).style.display =
+        "inline-block";
+
+    document.getElementById(
+        "roleDisplay"
+    ).innerHTML =
+
+        "新人は" +
+        rookieName +
+        "です<br><br>" +
+
+        "皆さんに紹介してから<br><br>" +
+
+        "会議を開始してください";
 
 }
 function revealRole() {
@@ -908,16 +1086,47 @@ function showMiningPlayer() {
 
     let player =
         miningPlayers[miningIndex];
+    let accidentMessage = "";
+    if(accidentType === "B") {
+
+    let factionSum = 0;
+
+    for(
+        let i = 0;
+        i < miningPlayers.length;
+        i++
+    ) {
+
+        factionSum +=
+            miningPlayers[i].faction;
+
+    }
+
+    if(factionSum > 0) {
+
+        accidentMessage =
+
+            "<br><br>" +
+
+            "不穏な噂が流れている…";
+
+    }
+
+}
 
     document.getElementById("result").innerHTML =
 
-        "<h2>" +
-        player.name +
-        "の採掘</h2>" +
+    "<h2>" +
+    player.name +
+    "の採掘</h2>" +
 
-        "<button onclick='mineOnePlayer()'>" +
-        "採掘する" +
-        "</button>";
+    accidentMessage +
+
+    "<br><br>" +
+
+    "<button onclick='mineOnePlayer()'>" +
+    "採掘する" +
+    "</button>";
 
 }
 function mineOnePlayer() {
@@ -1035,7 +1244,7 @@ function confirmMining() {
 
         document.getElementById("result").innerHTML =
 
-            "<h2>スマホを渡してください</h2>" +
+            "<h2>端末を渡してください</h2>" +
 
             "<h3>" +
             nextPlayer.name +
@@ -1062,7 +1271,7 @@ function confirmMining() {
 
     document.getElementById("result").innerHTML =
 
-        "<h2>スマホをリーダー（" +
+        "<h2>端末をリーダー（" +
         leaderName +
         "）に渡してください</h2>" +
 
@@ -1153,6 +1362,63 @@ showHistory();
         thiefWins++;
 
     }
+    let rumorText = "";
+    let accidentText = "";
+
+    let rumorLoverExists = false;
+    for(
+    let i = 0;
+    i < miningPlayers.length;
+    i++
+) {
+
+    if(
+        miningPlayers[i].role ===
+        "噂好き"
+    ) {
+
+        rumorLoverExists = true;
+
+    }
+
+}
+if(
+    accidentType === "A" ||
+    accidentType === "B"
+) {
+
+    accidentText =
+
+        "<br><br>" +
+
+        "<h3>落盤事故が発生した！</h3>";
+
+}
+let factionSum = 0;
+for(
+    let i = 0;
+    i < miningPlayers.length;
+    i++
+) {
+
+    factionSum +=
+        miningPlayers[i].faction;
+
+}
+if(
+    rumorLoverExists &&
+    factionSum > 0 &&
+    sum < 300
+) {
+
+    rumorText =
+
+        "<br><br>" +
+
+        "不穏な噂が流れている…";
+
+}
+
 
     if(citizenWins >= CITIZEN_WIN_COUNT) {
 
@@ -1236,7 +1502,11 @@ showHistory();
 
         "<h3>" +
         result +
-        "</h3>";
+        "</h3>"+
+
+        accidentText +
+
+        rumorText;
 
     document.getElementById("nextRoundButton").style.display =
         "inline-block";
@@ -1380,23 +1650,27 @@ function showRuleBook() {
 
         "<button onclick='showGameOverview()'>" +
         "ゲーム概要" +
-        "</button><br><br>" +
+        "</button><br>" +
 
         "<button onclick='showRoles()'>" +
         "役職説明" +
-        "</button><br><br>" +
+        "</button><br>" +
 
         "<button onclick='showFlow()'>" +
         "ゲームの流れ" +
-        "</button><br><br>" +
+        "</button><br>" +
+
+        "<button onclick='showRules()'>" +
+        "禁止事項" +
+        "</button><br>" +
 
         "<button onclick='showVictory()'>" +
         "勝利条件" +
-        "</button><br><br>" +
+        "</button><br>" +
 
         "<button onclick='showTips()'>" +
         "Tips" +
-        "</button><br><br>" +
+        "</button><br>" +
 
         "<button onclick='closeRuleBook()'>" +
         "閉じる" +
@@ -1474,6 +1748,42 @@ function showRoles() {
 
         "<div class='ruleCard'>" +
 
+        "<h3>新人</h3>" +
+
+        "<p>" +
+
+        "市民陣営です。役職確認終了後、新人であることが全員に公開されます。" +
+
+        "</p>" +
+
+        "<p>" +
+
+        "リーダーが連れてきた新人採掘者です。採掘にはまだ不慣れです。" +
+
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>噂好き</h3>" +
+
+        "<p>" +
+
+        "市民陣営です。噂好きが採掘メンバーに選ばれた際、納品に失敗した場合、不穏な噂が流れることがあります。" +
+
+        "</p>" +
+
+        "<p>" +
+
+        "坑道内の出来事に詳しく、どこからともなく集まる噂話を好んでいます。しかし、自分が噂好きであることは周囲に知られたくないようです。" +
+
+        "</p>" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
         "<h3>盗賊</h3>" +
 
         "<p>" +
@@ -1519,7 +1829,7 @@ function showFlow() {
         "<h3>① 役職確認</h3>" +
 
         "<p>" +
-        "順番にスマートフォンを回し、自分の役職を確認します。" +
+        "順番に端末を回し、自分の役職を確認します。" +
         "</p>" +
 
         "</div>" +
@@ -1591,6 +1901,60 @@ function showFlow() {
         "<p>" +
         "勝敗が決まっていなければ次のラウンドへ進みます。" +
         "</p>" +
+
+        "</div>" +
+        "<div class='ruleCard'>" +
+
+        "<h3>補足：採掘事故</h3>" +
+
+        "<p>" +
+
+        "採掘事故設定がONの場合、低確率で落盤事故が発生します。" +
+
+        "</p>" +
+
+        "<p>" +
+
+        "落盤事故は採掘結果や、その後の議論に影響を与えることがあります。" +
+
+        "</p>" +
+
+        "</div>" +
+
+        "<button onclick='showRuleBook()'>" +
+
+        "戻る" +
+
+        "</button>";
+
+}
+function showRules() {
+
+    document.getElementById(
+        "ruleBookDisplay"
+    ).innerHTML =
+
+        "<h2>禁止事項</h2>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>① 採掘参加者による採掘フェーズ中の発言</h3>" +
+
+        "採掘フェーズ中、採掘に参加しているプレイヤーは発言できません。<br>" +
+
+        "採掘に参加していないプレイヤーは自由に発言できます。" +
+
+        "</div>" +
+
+        "<div class='ruleCard'>" +
+
+        "<h3>② 宝石数の公開</h3>" +
+
+        "ゲーム中、自分が獲得した宝石の具体的な個数を公開してはいけません。<br>" +
+
+        "また、端末の画面を見せるなどして、獲得した宝石数を証明する行為も禁止します。<br><br>" +
+
+        "ただし、「多めに採れた」「少なめだった」など、具体的な個数を含まない曖昧な表現による発言は可能です。" +
 
         "</div>" +
 
@@ -1696,6 +2060,24 @@ function showTips() {
 
         "</div>" +
 
+        "<div class='ruleCard'>" +
+
+        "<h3>不穏な噂について</h3>" +
+
+        "<p>" +
+
+        "「不穏な噂が流れている…」というメッセージは、何らかの重要な情報を示している可能性があります。" +
+
+        "</p>" +
+
+        "<p>" +
+
+        "メッセージが表示された状況や採掘メンバーに注目してみましょう。" +
+
+        "</p>" +
+
+        "</div>" +
+
         "<button onclick='showRuleBook()'>" +
         "戻る" +
         "</button>";
@@ -1739,15 +2121,20 @@ function showSettings() {
         "value='7'>" +
         "7人<br><br>" +
 
-        "<h3>追加役職（Coming soon...）</h3>" +
+        "<h3>追加役職</h3>" +
 
         "<input type='checkbox' " +
         "id='rookieOption'>" +
         "新人<br>" +
 
         "<input type='checkbox' " +
-        "id='rumorOption'>" +
-        "噂好き<br><br>" +
+        "id='rumorOption'>" +"噂好き<br>" +
+
+        "<h3>採掘事故の追加</h3>" +
+
+        "<input type='checkbox' " +
+        "id='accidentOption'>" +
+        "採掘事故<br><br>" +
 
         "<button onclick='saveSettings()'>" +
         "保存" +
@@ -1767,6 +2154,19 @@ function saveSettings() {
 
     PLAYER_COUNT =
         Number(selectedPlayerCount);
+
+    rookieEnabled =
+        document.getElementById(
+            "rookieOption"
+        ).checked;
+    rumorEnabled =
+        document.getElementById(
+            "rumorOption"
+        ).checked;
+    accidentEnabled =
+    document.getElementById(
+        "accidentOption"
+    ).checked;
 
     players = createPlayers();
 
