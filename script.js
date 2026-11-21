@@ -11,8 +11,8 @@ const MAX_ROUND = CITIZEN_WIN_COUNT + THIEF_WIN_COUNT - 1;
 
 // 以下、採掘確率
 const MINING_ROLLS = 40; // 試行回数
-const LOW_RATE = 0.59; // LOW_REWARDの確率
-const MID_RATE = 0.02; // MID_REWARDの確率
+const LOW_RATE = 0.58; // LOW_REWARDの確率
+const MID_RATE = 0.05; // MID_REWARDの確率
 
 const LOW_REWARD = 1;
 const MID_REWARD = 4;
@@ -27,14 +27,15 @@ let accidentEnabled = false;// 落盤事故
 // 以上、詳細設定用
 
 // 以下、採掘事故用
-const ACCIDENT_RATE = 0.04;// 事故発生確率
+const ACCIDENT_RATE = 0.05;// 事故発生確率
 const ACCIDENT_A_RATE = 0.20;// 事故A発生
 const ACCIDENT_A_PENALTY = 10;// 事故Aの個人採掘量のマイナス量
 const ACCIDENT_B_PENALTY = 2;// 事故Bの個人採掘量のマイナス量
 
 let accidentType = "";
-
 // 以上、採掘事故用
+
+const ACCOMPLICE_PENALTY = 4;//共犯者能力用
 
 // 役職のデータ
 const ROLE_DATA = {
@@ -43,7 +44,7 @@ const ROLE_DATA = {
         faction: 0,
         displayRole: "リーダー",
         revealRole: "リーダー",
-        miningBonus: 10,
+        miningBonus: 12,
         isPublic: false
     },
 
@@ -107,7 +108,7 @@ const ROLE_DATA = {
         faction: 2,
         displayRole: "共犯者",
         revealRole: "共犯者",
-        miningBonus: 12,
+        miningBonus: 15,
         isPublic: false
     }
 
@@ -200,6 +201,13 @@ let rookieEnabled = false;
 let rumorEnabled = false;
 
 let revealPlayerIndex = 0;
+
+// 調査用
+let investigationLevel = 0;
+let lowDeliveryCount = 0;
+let investigationUsed = false;
+let lastRoundDeliveries = [];
+let investigationText = "";
 
 function showPlayerNameInputs() {
 
@@ -327,6 +335,14 @@ function getMiningAmount(role) {
     amount +=
         ROLE_DATA[role]
         .miningBonus;
+    if(
+    accompliceUsed
+    ) {
+
+    amount -=
+        ACCOMPLICE_PENALTY;
+
+    }
     if(
     accidentType === "A"
     ) {
@@ -902,7 +918,131 @@ function endMeeting() {
 
 }
 
+// 調査関連
+function startInvestigation() {
+investigationUsed = true;
+
+if(
+    investigationLevel >= 2
+) {
+
+    showInvestigationLevel2();
+
+    return;
+
+}
+    let text =
+
+        "<br><br>" +
+
+        "<h3>調査</h3>" +
+
+        "調査対象を選択してください" +
+
+        "<br><br>";
+
+    for(
+        let i = 0;
+        i < lastRoundDeliveries.length;
+        i++
+    ) {
+
+        text +=
+        
+        "<button onclick='showInvestigationResult(" +
+        i +
+        ")'>" +
+        lastRoundDeliveries[i].player 
+        "</button><br><br>";
+
+    }
+
+    investigationText = text;
+
+    updateMeetingDisplay();
+
+}
+function showInvestigationResult(index) {
+
+    investigationText =
+
+        "<br><br>" +
+
+        "<h3>調査結果</h3>" +
+
+        lastRoundDeliveries[index].player +
+
+        " は " +
+
+        lastRoundDeliveries[index].delivery +
+
+        " 個納品しました" +
+
+        "<br><br>" +
+
+        "<button onclick='closeInvestigation()'>" +
+
+        "閉じる" +
+
+        "</button>";
+
+    updateMeetingDisplay();
+
+}
+function showInvestigationLevel2() {
+
+    let text =
+
+        "<br><br>" +
+
+        "<h3>調査結果</h3>";
+
+    for(
+        let i = 0;
+        i < lastRoundDeliveries.length;
+        i++
+    ) {
+
+        text +=
+
+            lastRoundDeliveries[i].player +
+
+            " は " +
+
+            lastRoundDeliveries[i].delivery +
+
+            " 個納品しました" +
+
+            "<br><br>";
+
+    }
+
+    text +=
+
+        "<button onclick='closeInvestigation()'>" +
+
+        "閉じる" +
+
+        "</button>";
+
+    investigationText = text;
+
+    updateMeetingDisplay();
+
+}
+function closeInvestigation() {
+
+    investigationUsed = true;
+
+    investigationText = "";
+
+    updateMeetingDisplay();
+
+}
+
+
 function updateMeetingDisplay() {
+    
 
     let minutes =
         Math.floor(meetingTime / 60);
@@ -915,14 +1055,49 @@ function updateMeetingDisplay() {
         seconds = "0" + seconds;
 
     }
+let investigationButton = "";
 
+if(
+    investigationLevel === 0
+) {
+
+    investigationButton =
+
+        "<br><br>" +
+
+        "<button disabled>" +
+
+        "調査" +
+
+        "</button>";
+
+}
+else if(
+    !investigationUsed
+) {
+
+    investigationButton =
+
+        "<br><br>" +
+
+        "<button onclick='startInvestigation()'>" +
+
+        "調査" +
+
+        "</button>";
+
+}
     document.getElementById("meetingDisplay").innerHTML =
         "<h2>会議中</h2>" +
         "<h3>残り " +
         minutes +
         ":" +
         seconds +
-        "</h3>";
+        "</h3>" +
+
+        investigationButton +
+        
+        investigationText;
 
 }
 function nextRound() {
@@ -930,6 +1105,7 @@ function nextRound() {
     miningPlayers = [];
     miningAmounts = [];
     deliveryAmounts = [];
+    investigationUsed = false;
 
     round++;
 
@@ -1335,6 +1511,23 @@ for(let i = 0; i < miningPlayers.length; i++) {
     );
 
 }
+lastRoundDeliveries = [];
+
+for(
+    let i = 0;
+    i < miningPlayers.length;
+    i++
+) {
+
+    lastRoundDeliveries.push({
+        player:
+            miningPlayers[i].name,
+
+        delivery:
+            deliveryAmounts[i]
+    });
+
+}
 
 miningHistory.push({
 
@@ -1349,6 +1542,22 @@ showHistory();
 
 
     let result;
+    if(sum <= 285) {
+
+    lowDeliveryCount++;
+
+    if(lowDeliveryCount >= 2) {
+
+        investigationLevel = 2;
+
+    }
+    else if(lowDeliveryCount >= 1) {
+
+        investigationLevel = 1;
+
+    }
+
+    }
 
     if(sum >= 300) {
 
@@ -1632,7 +1841,9 @@ html += "</tr>";
 
     document.getElementById("historyDisplay").innerHTML =
         html;
-
+console.log(
+    lastRoundDeliveries
+);
 }
 
 // ルールブック
@@ -1801,7 +2012,7 @@ function showRoles() {
         "<h3>共犯者</h3>" +
 
         "<p>" +
-        "盗賊陣営です。会議後に採掘メンバーを1人変更できます。" +
+        "盗賊陣営です。会議後に採掘メンバーを1人変更でき、今後の全体の採掘量を減らすことが出来ます。" +
         "</p>" +
 
         "<p>" +
@@ -1982,7 +2193,7 @@ function showVictory() {
         "</p>" +
 
         "<p>" +
-        "プロジェクトを5回成功させることができれば、市民陣営の勝利です。" +
+        "プロジェクトを"+CITIZEN_WIN_COUNT+"回成功させることができれば、市民陣営の勝利です。" +
         "</p>" +
 
         "</div>" +
@@ -1992,11 +2203,11 @@ function showVictory() {
         "<h3>盗賊陣営</h3>" +
 
         "<p>" +
-        "市民陣営のプロジェクト成功を阻止することが目的です。" +
+        "プロジェクトを"+THIEF_WIN_COUNT+"回失敗させることができれば、盗賊陣営の勝利です。" +
         "</p>" +
 
         "<p>" +
-        "また、市民陣営が5回プロジェクトを成功させた場合でも、一度も採掘に参加していないプレイヤーがいる場合は盗賊陣営の勝利となります。" +
+        "また、市民陣営が"+CITIZEN_WIN_COUNT+"回プロジェクトを成功させた場合でも、一度も採掘に参加していないプレイヤーがいる場合は盗賊陣営の勝利となります。" +
         "</p>" +
 
         "</div>" +
@@ -2022,7 +2233,7 @@ function showTips() {
 
         "<ul>" +
 
-        "<li>採掘者の採掘量の期待値は約104.7個です。</li>" +
+        "<li>採掘者の採掘量の期待値は約105個です。</li>" +
 
         "<li>リーダー、盗賊、共犯者の期待値は採掘者より高くなっています。</li>" +
 
@@ -2038,9 +2249,9 @@ function showTips() {
 
         "<ul>" +
 
-        "<li>採掘メンバー3人がすべて市民陣営の場合、300個以上納品できる確率は約75.4％～89.5％です。</li>" +
+        "<li>採掘メンバー3人がすべて市民陣営の場合、300個以上納品できる確率は約80％前後です。</li>" +
 
-        "<li>採掘メンバーのうち2人が市民陣営で、盗賊陣営のプレイヤーが50個のみ納品した場合、300個以上納品できる確率は約0.8％～12.5％になります。</li>" +
+        "<li>採掘メンバーのうち2人が市民陣営で、盗賊陣営のプレイヤーが50個のみ納品した場合も、低確率で300個以上納品できます。</li>" +//約5％前後
 
         "</ul>" +
 
@@ -2094,7 +2305,6 @@ function closeRuleBook() {
     ).innerHTML = "";
 
 }
- 
 
 // 以下、設定画面
 function showSettings() {
