@@ -1,8 +1,91 @@
+html {
+    overflow-y: scroll;
+}
+#title img {
+
+    max-width: 500px;
+
+    width: 90%;
+
+    height: auto;
+
+}
 body {
+    background-image: url("Miner image/background/幻想的な水晶鉱山の霧景観.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    background-color: rgba(0, 0, 0, 0.5);
     text-align: center;
     font-family: sans-serif;
     margin-top: 100px;
+
+    font-family:
+        "Trebuchet MS",
+        "Yu Gothic",
+        sans-serif;
 }
+h2,
+h3 {
+
+    font-family:
+        Georgia,
+        serif;
+
+}
+
+#playerNameArea,
+#roundDisplay,
+#scoreDisplay,
+#selectionArea,
+#roleDisplay,
+#meetingDisplay,
+#accompliceDisplay,
+#result,
+#settingsDisplay,
+#ruleBookDisplay,
+#historyDisplay {
+
+    background-color:
+        rgba(235,230,215,0.75);
+
+    border-radius: 10px;
+
+    padding: 10px;
+
+    margin: 10px auto;
+
+    max-width: 600px;
+}
+
+#panel{
+
+    background-color:
+        rgba(235,230,215,0.85);
+
+    border-radius: 10px;
+
+    padding: 10px;
+
+    margin: 10px auto;
+
+    max-width: 800px;
+}
+
+/* ホーム画面での不要な表示消す用 */
+#meetingDisplay:empty,
+#roleDisplay:empty,
+#result:empty,
+#settingsDisplay:empty,
+#ruleBookDisplay:empty,
+#historyDisplay:empty,
+#accompliceDisplay:empty {
+    display: none;
+}
+/* ホーム画面での不要な表示消す用 */
+
 #playerSelect {
 
     text-align: left;
@@ -19,11 +102,43 @@ body {
 }
 button {
 
+    background-color:
+        rgba(50, 84, 176, 0.93);
+
+    color: white;
+
+    border: 2px solid
+        rgb(130, 220, 255);
+
+    border-radius: 8px;
+
     font-size: 20px;
 
     padding: 6px 10px;
 
     margin: 5px;
+}
+button:hover {
+
+    background-color:
+        rgba(34, 69, 134, 0.95);
+
+}
+button:disabled {
+
+    background-color:
+        rgba(120,120,120,0.7);
+
+    color: #ddd;
+
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+
+}
+#roleDisplay {
+
+    font-size: 24px;
+
+    font-weight: bold;
 
 }
 input[type="checkbox"] {
@@ -63,6 +178,12 @@ input[type="radio"] {
 /* スマホ専用設定 */
 
 @media screen and (max-width: 768px) {
+    #title img {
+
+    width: min(90%, 500px);
+
+    height: auto;
+    }
 
     body {
 
