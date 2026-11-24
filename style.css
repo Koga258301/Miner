@@ -1,39 +1,30 @@
 html {
-    overflow-y: scroll;
+  overflow-y: scroll;
 }
 #title img {
+  max-width: 500px;
 
-    max-width: 500px;
+  width: 90%;
 
-    width: 90%;
-
-    height: auto;
-
+  height: auto;
 }
 body {
-    background-image: url("Miner image/background/幻想的な水晶鉱山の霧景観.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+  background-image: url("Miner image/background/Miner background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 
-    background-color: rgba(0, 0, 0, 0.5);
-    text-align: center;
-    font-family: sans-serif;
-    margin-top: 100px;
+  background-color: rgba(0, 0, 0, 0.5);
+  text-align: center;
+  font-family: sans-serif;
+  margin-top: 100px;
 
-    font-family:
-        "Trebuchet MS",
-        "Yu Gothic",
-        sans-serif;
+  font-family: "Trebuchet MS", "Yu Gothic", sans-serif;
 }
 h2,
 h3 {
-
-    font-family:
-        Georgia,
-        serif;
-
+  font-family: Georgia, serif;
 }
 
 #playerNameArea,
@@ -47,31 +38,27 @@ h3 {
 #settingsDisplay,
 #ruleBookDisplay,
 #historyDisplay {
+  background-color: rgba(235, 230, 215, 0.75);
 
-    background-color:
-        rgba(235,230,215,0.75);
+  border-radius: 10px;
 
-    border-radius: 10px;
+  padding: 10px;
 
-    padding: 10px;
+  margin: 10px auto;
 
-    margin: 10px auto;
-
-    max-width: 600px;
+  max-width: 600px;
 }
 
-#panel{
+#panel {
+  background-color: rgba(235, 230, 215, 0.85);
 
-    background-color:
-        rgba(235,230,215,0.85);
+  border-radius: 10px;
 
-    border-radius: 10px;
+  padding: 10px;
 
-    padding: 10px;
+  margin: 10px auto;
 
-    margin: 10px auto;
-
-    max-width: 800px;
+  max-width: 800px;
 }
 
 /* ホーム画面での不要な表示消す用 */
@@ -82,181 +69,140 @@ h3 {
 #ruleBookDisplay:empty,
 #historyDisplay:empty,
 #accompliceDisplay:empty {
-    display: none;
+  display: none;
 }
 /* ホーム画面での不要な表示消す用 */
 
 #playerSelect {
+  text-align: left;
 
-    text-align: left;
-
-    display: inline-block;
-
+  display: inline-block;
 }
 #historyDisplay {
+  overflow-x: auto;
 
-    overflow-x: auto;
-
-    margin-top: 20px;
-
+  margin-top: 20px;
 }
 button {
+  background-color: rgba(50, 84, 176, 0.93);
 
-    background-color:
-        rgba(50, 84, 176, 0.93);
+  color: white;
 
-    color: white;
+  border: 2px solid rgb(130, 220, 255);
 
-    border: 2px solid
-        rgb(130, 220, 255);
+  border-radius: 8px;
 
-    border-radius: 8px;
+  font-size: 20px;
 
-    font-size: 20px;
+  padding: 6px 10px;
 
-    padding: 6px 10px;
-
-    margin: 5px;
+  margin: 5px;
 }
 button:hover {
-
-    background-color:
-        rgba(34, 69, 134, 0.95);
-
+  background-color: rgba(34, 69, 134, 0.95);
 }
 button:disabled {
+  background-color: rgba(120, 120, 120, 0.7);
 
-    background-color:
-        rgba(120,120,120,0.7);
+  color: #ddd;
 
-    color: #ddd;
-
-    box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
-
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
 }
 #roleDisplay {
+  font-size: 24px;
 
-    font-size: 24px;
-
-    font-weight: bold;
-
+  font-weight: bold;
 }
 input[type="checkbox"] {
+  width: 19px;
 
-    width: 19px;
-
-    height: 19px;
-
+  height: 19px;
 }
 .ruleCard {
+  text-align: left;
 
-    text-align: left;
+  border: 2px solid #444;
 
-    border: 2px solid #444;
+  border-radius: 8px;
 
-    border-radius: 8px;
+  padding: 15px;
 
-    padding: 15px;
+  margin: 15px auto;
 
-    margin: 15px auto;
+  max-width: 600px;
 
-    max-width: 600px;
-
-    background-color: #f8f8f8;
-
+  background-color: #f8f8f8;
 }
 .ruleCard h3 {
-
-    text-align: center;
-
+  text-align: center;
 }
 input[type="radio"] {
-    width: 24px;
-    height: 24px;
+  width: 24px;
+  height: 24px;
 }
 
 /* スマホ専用設定 */
 
 @media screen and (max-width: 768px) {
-    #title img {
-
+  #title img {
     width: min(90%, 500px);
 
     height: auto;
-    }
+  }
 
-    body {
+  body {
+    font-size: 24px;
 
-        font-size: 24px;
+    margin-top: 20px;
+  }
 
-        margin-top: 20px;
+  h1 {
+    font-size: 40px;
+  }
 
-    }
+  h2 {
+    font-size: 32px;
+  }
 
-    h1 {
+  h3 {
+    font-size: 28px;
+  }
 
-        font-size: 40px;
+  button {
+    font-size: 24px;
 
-    }
+    padding: 15px 25px;
 
-    h2 {
+    margin: 8px;
 
-        font-size: 32px;
+    border-radius: 8px;
+  }
 
-    }
+  input[type="checkbox"] {
+    width: 32px;
 
-    h3 {
+    height: 32px;
+  }
 
-        font-size: 28px;
+  input[type="text"],
+  input[type="number"] {
+    width: 180px;
 
-    }
+    font-size: 24px;
 
-    button {
+    padding: 10px;
 
-        font-size: 24px;
+    border: 3px solid #444;
 
-        padding: 15px 25px;
+    border-radius: 8px;
+  }
 
-        margin: 8px;
+  table {
+    font-size: 20px;
+  }
 
-        border-radius: 8px;
-
-    }
-
-    input[type="checkbox"] {
-
-        width: 32px;
-
-        height: 32px;
-
-    }
-
-    input[type="text"],
-    input[type="number"] {
-
-        width: 180px;
-
-        font-size: 24px;
-
-        padding: 10px;
-
-        border: 3px solid #444;
-
-        border-radius: 8px;
-
-    }
-
-    table {
-
-        font-size: 20px;
-
-    }
-
-    td,
-    th {
-
-        padding: 8px;
-
-    }
-
+  td,
+  th {
+    padding: 8px;
+  }
 }
