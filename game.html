@@ -1,0 +1,80 @@
+<html>
+  <head>
+    <title>Miner</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <!-- 音関連 -->
+  <audio id="clickSound">
+    <source src="Miner image/sound/click.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="miningSound">
+    <source src="Miner image/sound/mining-sound.mp3" type="audio/mpeg" />
+  </audio>
+
+  <body>
+    <div id="backgroundLayer"></div>
+
+    <h1 id="title">
+      <img src="Miner image/background/Miner-logo.png" alt="Miner" />
+    </h1>
+    <!-- 以下、ホーム画面 -->
+    <div id="homescreen">
+      <div id="homeArea">
+        <!-- プレイヤー名の処理 -->
+        <div id="playerSetupArea">
+          <div id="playerNameArea"></div>
+          <div id="settingSummary"></div>
+        </div>
+      </div>
+      <div id="homeButton">
+        <button id="startButton" onclick="startGame()">ゲーム開始</button>
+        <button id="settingsButton" onclick="showSettings()">設定</button>
+        <br /><br />
+
+        <button id="ruleBookButton" onclick="showRuleBook()">
+          ルールブックを読む
+        </button>
+      </div>
+    </div>
+
+    <!-- 以上、ホーム画面 -->
+
+    <!-- 以下、ゲーム画面 -->
+    <h2 id="roundDisplay">Round 1</h2>
+    <h3 id="scoreDisplay">市民 0勝　盗賊 0勝</h3>
+
+    <div id="selectionArea">
+      <h3>採掘メンバー選択</h3>
+
+      <div id="playerSelect"></div>
+    </div>
+
+    <button id="roleButton" onclick="showRole()">役職確認</button>
+    <div id="roleDisplay"></div>
+
+    <button id="mineButton" onclick="mining()">採掘開始</button>
+
+    <button id="meetingButton" onclick="startMeeting()">会議開始</button>
+    <div id="meetingDisplay"></div>
+    <div id="accompliceDisplay"></div>
+    <button id="endMeetingButton" onclick="endMeeting()">会議終了</button>
+
+    <button id="nextRoundButton" onclick="nextRound()">次ラウンドへ</button>
+
+    <button id="selectDoneButton" onclick="finishSelection()">選出完了</button>
+    <!-- 以上、ゲーム画面 -->
+
+    <div id="result"></div>
+
+    <div id="settingsDisplay"></div>
+
+    <div id="ruleBookDisplay"></div>
+
+    <script src="script.js"></script>
+
+    <div id="historyDisplay"></div>
+  </body>
+</html>

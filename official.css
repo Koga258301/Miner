@@ -1,0 +1,135 @@
+html {
+  overflow-y: scroll;
+}
+
+body {
+  margin: 0;
+
+  text-align: center;
+
+  font-family: "Yu Gothic", sans-serif;
+
+  color: #222;
+}
+
+/* 背景 */
+
+#backgroundLayer {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: -1;
+
+  background-image: url("Miner image/background/Miner-background.png");
+
+  background-size: cover;
+
+  background-position: center;
+
+  background-repeat: no-repeat;
+}
+
+/* 全体レイアウト */
+
+main {
+  width: min(1000px, 95%);
+
+  margin: auto;
+
+  padding: 20px;
+}
+
+/* ロゴ */
+
+#logo {
+  width: min(700px, 90%);
+
+  height: auto;
+
+  margin-top: 40px;
+}
+
+/* キャッチコピー */
+
+.catchCopy {
+  font-size: 28px;
+
+  font-weight: bold;
+
+  color: white;
+
+  text-shadow: 2px 2px 6px black;
+
+  margin: 20px 0;
+}
+
+/* パネル */
+
+.panel {
+  background-color: rgba(235, 230, 215, 0.9);
+
+  border-radius: 12px;
+
+  padding: 20px;
+
+  margin: 20px auto;
+
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 見出し */
+
+.panel h2 {
+  margin-top: 0;
+
+  color: #3a2f1d;
+}
+
+/* ゲーム開始ボタン */
+
+.mainButton {
+  font-size: 28px;
+
+  font-weight: bold;
+
+  padding: 15px 40px;
+
+  border-radius: 10px;
+
+  border: 2px solid #6d5737;
+
+  background-color: rgba(140, 120, 90, 0.95);
+
+  color: white;
+
+  cursor: pointer;
+}
+
+.mainButton:hover {
+  background-color: rgba(165, 140, 105, 0.95);
+}
+
+/* スクリーンショット */
+
+.screenshot {
+  width: min(800px, 100%);
+
+  border-radius: 10px;
+
+  margin-top: 10px;
+}
+
+/* スマホ */
+
+@media screen and (max-width: 768px) {
+  .catchCopy {
+    font-size: 20px;
+  }
+
+  .mainButton {
+    width: 90%;
+
+    font-size: 24px;
+  }
+}

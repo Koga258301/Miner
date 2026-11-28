@@ -1,80 +1,83 @@
-<html>
+<!doctype html>
+<html lang="ja">
   <head>
-    <title>Miner</title>
-
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="style.css" />
+    <title>Miner Official Site</title>
+
+    <link rel="stylesheet" href="official.css" />
   </head>
-  <!-- 音関連 -->
-  <audio id="clickSound">
-    <source src="Miner image/sound/click.mp3" type="audio/mpeg" />
-  </audio>
-  <audio id="miningSound">
-    <source src="Miner image/sound/mining-sound.mp3" type="audio/mpeg" />
-  </audio>
 
   <body>
     <div id="backgroundLayer"></div>
 
-    <h1 id="title">
-      <img src="Miner image/background/Miner-logo.png" alt="Miner" />
-    </h1>
-    <!-- 以下、ホーム画面 -->
-    <div id="homescreen">
-      <div id="homeArea">
-        <!-- プレイヤー名の処理 -->
-        <div id="playerSetupArea">
-          <div id="playerNameArea"></div>
-          <div id="settingSummary"></div>
-        </div>
-      </div>
-      <div id="homeButton">
-        <button id="startButton" onclick="startGame()">ゲーム開始</button>
-        <button id="settingsButton" onclick="showSettings()">設定</button>
-        <br /><br />
+    <main>
+      <section id="hero">
+        <img
+          src="Miner image/background/Miner-logo.png"
+          alt="Miner"
+          id="logo"
+        />
 
-        <button id="ruleBookButton" onclick="showRuleBook()">
-          ルールブックを読む
-        </button>
-      </div>
-    </div>
+        <p class="catchCopy">採掘チームの中に潜む盗賊を見抜け。</p>
 
-    <!-- 以上、ホーム画面 -->
+        <a href="game.html">
+          <button class="mainButton">ゲーム開始</button>
+        </a>
+      </section>
 
-    <!-- 以下、ゲーム画面 -->
-    <h2 id="roundDisplay">Round 1</h2>
-    <h3 id="scoreDisplay">市民 0勝　盗賊 0勝</h3>
+      <section class="panel">
+        <h2>Minerとは？</h2>
 
-    <div id="selectionArea">
-      <h3>採掘メンバー選択</h3>
+        <p>
+          Minerは採掘結果と議論をもとに、 盗賊陣営を見抜く正体隠匿型ゲームです。
+        </p>
 
-      <div id="playerSelect"></div>
-    </div>
+        <p>
+          リーダーは採掘メンバーを選出し、
+          市民陣営はプロジェクト成功を目指します。
+        </p>
+      </section>
 
-    <button id="roleButton" onclick="showRole()">役職確認</button>
-    <div id="roleDisplay"></div>
+      <section class="panel">
+        <h2>ゲームの特徴</h2>
 
-    <button id="mineButton" onclick="mining()">採掘開始</button>
+        <h3>⛏️ 採掘</h3>
 
-    <button id="meetingButton" onclick="startMeeting()">会議開始</button>
-    <div id="meetingDisplay"></div>
-    <div id="accompliceDisplay"></div>
-    <button id="endMeetingButton" onclick="endMeeting()">会議終了</button>
+        <p>採掘結果がゲーム展開に大きく影響します。</p>
 
-    <button id="nextRoundButton" onclick="nextRound()">次ラウンドへ</button>
+        <h3>🕵️ 推理</h3>
 
-    <button id="selectDoneButton" onclick="finishSelection()">選出完了</button>
-    <!-- 以上、ゲーム画面 -->
+        <p>調査システムや噂を利用して 盗賊陣営を追い詰めます。</p>
 
-    <div id="result"></div>
+        <h3>🤝 駆け引き</h3>
 
-    <div id="settingsDisplay"></div>
+        <p>リーダー、盗賊、共犯者の思惑が交差します。</p>
+      </section>
 
-    <div id="ruleBookDisplay"></div>
+      <section class="panel">
+        <h2>更新履歴</h2>
 
-    <script src="script.js"></script>
+        <pre id="changelog">
 
-    <div id="historyDisplay"></div>
+         読み込み中...
+
+        </pre>
+      </section>
+    </main>
+    <script>
+      fetch("CHANGELOG.md")
+        .then((response) => response.text())
+
+        .then((text) => {
+          document.getElementById("changelog").innerText = text;
+        })
+
+        .catch((error) => {
+          document.getElementById("changelog").innerText =
+            "更新履歴を読み込めませんでした。";
+        });
+    </script>
   </body>
 </html>
