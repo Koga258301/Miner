@@ -42,6 +42,8 @@ h3 {
   font-family: Georgia, serif;
 }
 
+#gameButton,
+#homeButton,
 #playerNameArea,
 #settingSummary,
 #roundDisplay,
@@ -62,7 +64,7 @@ h3 {
 
   margin: 10px auto;
 
-  max-width: 600px;
+  max-width: 400px;
 }
 #playerSetupArea {
   display: inline-flex;
