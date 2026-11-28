@@ -304,6 +304,7 @@ function determineAccident() {
 }
 // 採掘開始
 function mining() {
+  document.getElementById("accompliceDisplay").innerHTML = "";
   if (meetingInProgress) {
     alert("会議を終了してください");
 
@@ -342,7 +343,7 @@ function mining() {
 
     return;
   }
-  document.getElementById("mineButton").style.display = "none";
+  // document.getElementById("mineButton").style.display = "none";
 
   miningPlayers = selectedPlayers;
 
@@ -396,7 +397,9 @@ function startGame() {
   document.getElementById("roundDisplay").style.display = "block";
   document.getElementById("scoreDisplay").style.display = "block";
 
-  document.getElementById("roleButton").style.display = "inline-block";
+  // document.getElementById("roleButton").style.display = "inline-block";
+  document.getElementById("roleDisplay").innerHTML =
+    "<button onclick='showRole()'>" + "役職確認" + "</button>";
 }
 function showPlayers() {
   let html = "";
@@ -411,12 +414,12 @@ function showPlayers() {
   document.getElementById("roundDisplay").style.display = "none";
   document.getElementById("scoreDisplay").style.display = "none";
 
-  document.getElementById("roleButton").style.display = "none";
-  document.getElementById("meetingButton").style.display = "none";
-  document.getElementById("endMeetingButton").style.display = "none";
-  document.getElementById("mineButton").style.display = "none";
-  document.getElementById("nextRoundButton").style.display = "none";
-  document.getElementById("selectDoneButton").style.display = "none";
+  // document.getElementById("roleButton").style.display = "none";
+  // document.getElementById("meetingButton").style.display = "none";
+  // document.getElementById("endMeetingButton").style.display = "none";
+  // document.getElementById("mineButton").style.display = "none";
+  // document.getElementById("nextRoundButton").style.display = "none";
+  // document.getElementById("selectDoneButton").style.display = "none";
 
   document.getElementById("selectionArea").style.display = "none";
 }
@@ -493,15 +496,15 @@ function resetGame() {
 
   document.getElementById("scoreDisplay").style.display = "none";
 
-  document.getElementById("roleButton").style.display = "none";
+  // document.getElementById("roleButton").style.display = "none";
 
-  document.getElementById("meetingButton").style.display = "none";
+  // document.getElementById("meetingButton").style.display = "none";
 
-  document.getElementById("endMeetingButton").style.display = "none";
+  // document.getElementById("endMeetingButton").style.display = "none";
 
-  document.getElementById("mineButton").style.display = "none";
+  // document.getElementById("mineButton").style.display = "none";
 
-  document.getElementById("nextRoundButton").style.display = "none";
+  // document.getElementById("nextRoundButton").style.display = "none";
 
   document.getElementById("homescreen").style.display = "block";
 
@@ -516,7 +519,7 @@ function resetGame() {
   document.getElementById("historyDisplay").innerHTML = "";
 }
 function showRole() {
-  document.getElementById("roleButton").style.display = "none";
+  // document.getElementById("roleButton").style.display = "none";
 
   if (!gameStarted) {
     alert("先にゲーム開始してください");
@@ -526,24 +529,32 @@ function showRole() {
 
   if (revealPlayerIndex >= players.length) {
     roleCheckComplete = true;
+    if (rookieEnabled) {
+      showRookieReveal();
+      return;
+    }
 
-    document.getElementById("roleButton").style.display = "none";
+    // document.getElementById("roleButton").style.display = "none";
 
     if (rookieEnabled) {
       document.getElementById("roleDisplay").innerHTML =
         "全員確認済みです<br><br>" +
-        "端末をリーダーに渡してください<br><br>" +
-        "<button onclick='showRookieReveal()'>" +
-        "次へ" +
+        "会議を開始してください<br><br>" +
+        "<button onclick='startMeeting()'>" +
+        "会議開始" +
         "</button>";
 
       return;
     }
 
-    document.getElementById("meetingButton").style.display = "inline-block";
+    // document.getElementById("meetingButton").style.display = "inline-block";
 
     document.getElementById("roleDisplay").innerHTML =
-      "全員確認済みです<br><br>" + "会議を開始してください";
+      "全員確認済みです<br><br>" +
+      "会議を開始してください<br><br>" +
+      "<button onclick='startMeeting()'>" +
+      "会議開始" +
+      "</button>";
 
     return;
   }
@@ -563,14 +574,17 @@ function showRookieReveal() {
     }
   }
 
-  document.getElementById("meetingButton").style.display = "inline-block";
+  // document.getElementById("meetingButton").style.display = "inline-block";
 
   document.getElementById("roleDisplay").innerHTML =
     "新人は" +
     rookieName +
     "です<br><br>" +
     "皆さんに紹介してから<br><br>" +
-    "会議を開始してください";
+    "会議を開始してください<br><br>" +
+    "<button onclick='startMeeting()'>" +
+    "会議開始" +
+    "</button>";
 }
 function revealRole() {
   let buttonText = "確認した";
@@ -608,8 +622,8 @@ function nextPlayer() {
   showRole();
 }
 function startMeeting() {
-  document.getElementById("meetingButton").style.display = "none";
-  document.getElementById("endMeetingButton").style.display = "inline-block";
+  // document.getElementById("meetingButton").style.display = "none";
+  // document.getElementById("endMeetingButton").style.display = "inline-block";
   document.getElementById("roleDisplay").innerHTML = "";
   if (!roleCheckComplete) {
     alert("先に全員の役職確認を完了してください");
@@ -640,11 +654,19 @@ function endMeeting() {
 
   document.getElementById("meetingDisplay").innerHTML =
     "<h2>リーダーは採掘メンバーを選出してください</h2>";
+  showSelectionButton();
 
-  document.getElementById("endMeetingButton").style.display = "none";
-  document.getElementById("selectDoneButton").style.display = "inline-block";
+  // document.getElementById("endMeetingButton").style.display = "none";
+  // document.getElementById("selectDoneButton").style.display = "inline-block";
 
   document.getElementById("selectionArea").style.display = "block";
+}
+function showSelectionButton() {
+  document.getElementById("selectionButtonArea").innerHTML =
+    "<button onclick='finishSelection()'>選出完了</button>";
+}
+function hideSelectionButton() {
+  document.getElementById("selectionButtonArea").innerHTML = "";
 }
 
 // 調査関連
@@ -723,6 +745,9 @@ function updateMeetingDisplay() {
   }
   let investigationButton = "";
 
+  let endMeetingButton =
+    "<br><br>" + "<button onclick='endMeeting()'>" + "会議終了" + "</button>";
+
   if (investigationLevel === 0) {
     investigationButton =
       "<br><br>" + "<button disabled>" + "調査" + "</button>" + " 調査Lv.0";
@@ -742,6 +767,7 @@ function updateMeetingDisplay() {
     ":" +
     seconds +
     "</h3>" +
+    endMeetingButton +
     investigationButton +
     investigationText;
 }
@@ -755,13 +781,15 @@ function nextRound() {
 
   document.getElementById("roundDisplay").innerHTML = "Round " + round;
 
-  document.getElementById("nextRoundButton").style.display = "none";
+  // document.getElementById("nextRoundButton").style.display = "none";
 
-  document.getElementById("meetingButton").style.display = "inline-block";
+  // document.getElementById("meetingButton").style.display = "inline-block";
 
   document.getElementById("meetingDisplay").innerHTML = "";
   document.getElementById("accompliceDisplay").innerHTML = "";
   document.getElementById("result").innerHTML = "";
+  document.getElementById("meetingDisplay").innerHTML =
+    "<button onclick='startMeeting()'>" + "会議開始" + "</button>";
 }
 
 // 共犯者の能力関係1
@@ -774,7 +802,8 @@ function useAccomplice() {
   document.getElementById("accompliceDisplay").innerHTML =
     "<h3>共犯者は採掘メンバーを選んでください</h3>";
 
-  document.getElementById("selectDoneButton").style.display = "inline-block";
+  // document.getElementById("selectDoneButton").style.display = "inline-block";
+  showSelectionButton();
 }
 // 共犯者の能力関係2
 function skipAccomplice() {
@@ -808,20 +837,21 @@ function finishSelection() {
     }
   }
   if (accompliceChanging) {
+    hideSelectionButton();
     accompliceChanging = false;
 
-    document.getElementById("selectDoneButton").style.display = "none";
+    // document.getElementById("selectDoneButton").style.display = "none";
 
     showFinalMembers();
 
     return;
   }
 
-  document.getElementById("selectDoneButton").style.display = "none";
+  // document.getElementById("selectDoneButton").style.display = "none";
 
   document.getElementById("meetingDisplay").innerHTML = "";
   document.getElementById("selectionArea").style.display = "none";
-
+  hideSelectionButton();
   if (!accompliceUsed) {
     document.getElementById("accompliceDisplay").innerHTML =
       "<h3>共犯者はメンバーを変更しますか？</h3>" +
@@ -846,9 +876,14 @@ function showFinalMembers() {
   document.getElementById("selectionArea").style.display = "none";
 
   document.getElementById("accompliceDisplay").innerHTML =
-    "<h3>最終採掘メンバー</h3>" + memberList;
+    "<h3>最終採掘メンバー</h3>" +
+    memberList +
+    "<br><br>" +
+    "<button onclick='mining()'>" +
+    "採掘開始" +
+    "</button>";
 
-  document.getElementById("mineButton").style.display = "inline-block";
+  // document.getElementById("mineButton").style.display = "inline-block";
 }
 function showMiningPlayer() {
   let player = miningPlayers[miningIndex];
@@ -1133,9 +1168,12 @@ function showMiningResult() {
     result +
     "</h3>" +
     accidentText +
-    rumorText;
-
-  document.getElementById("nextRoundButton").style.display = "inline-block";
+    rumorText +
+    "<br><br>" +
+    "<button onclick='nextRound()'>" +
+    "次ラウンドへ" +
+    "</button>";
+  // document.getElementById("nextRoundButton").style.display = "inline-block";
 }
 function showEnding(title, scoreText) {
   document.getElementById("result").innerHTML =

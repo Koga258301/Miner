@@ -42,8 +42,8 @@ h3 {
   font-family: Georgia, serif;
 }
 
-#gameButton,
 #homeButton,
+#selectionButtonArea,
 #playerNameArea,
 #settingSummary,
 #roundDisplay,
@@ -88,6 +88,7 @@ h3 {
 }
 
 /* ホーム画面での不要な表示消す用 */
+#selectionButtonArea:empty,
 #meetingDisplay:empty,
 #roleDisplay:empty,
 #result:empty,
