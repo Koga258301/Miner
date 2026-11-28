@@ -167,9 +167,16 @@ input[type="radio"] {
   width: 24px;
   height: 24px;
 }
+/* 採掘履歴表 */
+#historyDisplay td {
+  font-weight: bold;
+}
+#historyDisplay td,
+#historyDisplay th {
+  background-color: rgba(233, 229, 219, 0.95);
+}
 
 /* スマホ専用設定 */
-
 @media screen and (max-width: 768px) {
   #title img {
     width: min(90%, 500px);
@@ -231,5 +238,12 @@ input[type="radio"] {
   td,
   th {
     padding: 8px;
+  }
+  #playerSetupArea {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
   }
 }

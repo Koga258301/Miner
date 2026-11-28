@@ -891,6 +891,14 @@ function mineOnePlayer() {
   showMiningAnimation(player);
 
   setTimeout(function () {
+    playMiningSound();
+  }, 300);
+
+  setTimeout(function () {
+    playMiningSound();
+  }, 1200);
+
+  setTimeout(function () {
     showMiningResultScreen(player);
   }, 2500);
 }
@@ -903,7 +911,7 @@ function showMiningAnimation(player) {
     "justify-content:center;" +
     "align-items:center;" +
     "gap:20px;'>" +
-    "<img src='Miner image/Gamescreen/mining_pickaxe_150x150.gif' width='100'>" +
+    "<img src='Miner image/Gamescreen/mining_pickaxe_150x150.gif' width='50'>" +
     "<span style='font-size:32px; font-weight:bold; color:#3a2f1d; text-shadow:2px 2px 4px rgba(255,255,255,0.6);'>" +
     "採掘中..." +
     "</span>" +
@@ -1519,5 +1527,25 @@ function closeSettings() {
 
   document.getElementById("homescreen").style.display = "block";
 }
+// 音関連
+function playClickSound() {
+  let sound = document.getElementById("clickSound");
+
+  sound.currentTime = 0;
+
+  sound.play();
+}
+function playMiningSound() {
+  let sound = document.getElementById("miningSound");
+
+  sound.currentTime = 0;
+
+  sound.play();
+}
 showPlayerNameInputs();
 updateSettingSummary();
+document.addEventListener("click", function (event) {
+  if (event.target.tagName === "BUTTON") {
+    playClickSound();
+  }
+});
