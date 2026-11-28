@@ -1,1 +1,1 @@
-# Miner Ver1.0.0
+# Miner Ver0.4.0
